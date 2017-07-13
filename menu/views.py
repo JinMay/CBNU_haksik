@@ -12,6 +12,8 @@ from .models import Main
 dorm = ['청람재', '본관', '양진재', '양성재']
 day = ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일']
 
+global_dorm = ""
+
 # crawling
 def crawling(request):
     Main.objects.all().delete()
@@ -42,6 +44,7 @@ def keyboard(request):
 
     return JsonResponse(keyboard)
 
+# data serializing 문제 때문에 미사용
 def keyboard_choice(mode):
     dorm_keyboard = {
         "type" : "buttons",
@@ -59,6 +62,30 @@ def keyboard_choice(mode):
         return JsonResponse(dorm_keyboard)
 
 
+def menu_answer(day):
+    if global_dorm == "청람재":
+        pass
+    elif global_dorm == "본관":
+        if day == "월요일":
+            return Main.objects.get(id = 1)
+        elif day == "화요일":
+            return Main.objects.get(id = 2)
+        elif day == "수요일":
+            return Main.objects.get(id = 3)
+        elif day == "목요일":
+            return Main.objects.get(id = 4)
+        elif day == "금요일":
+            return Main.objects.get(id = 5)
+        elif day == "토요일":
+            return Main.objects.get(id = 6)
+        elif day == "일요일":
+            return Main.objects.get(id = 0)
+    elif global_dorm == "양진재":
+        pass
+    elif global_dorm == "양성재":
+        pass
+
+
 
 @csrf_exempt
 def answer(request):
@@ -71,6 +98,7 @@ def answer(request):
 
     # 기숙사 종류 선택했을 때
     if dorm_or_day in dorm:
+        global_dorm = dorm_or_day
         return JsonResponse({
             "message": {
                 "text" : dorm_or_day
@@ -83,11 +111,11 @@ def answer(request):
 
     # 요일 선택했을 때
     elif dorm_or_day in day:
-        if dorm_or_day == "월요일":
-            menu = Main.objects.get(id = 1)
+        # if dorm_or_day == "월요일":
+        #     menu = Main.objects.get(id = 1)
         return JsonResponse({
             "message": {
-                "text" : dorm_or_day + "식단 입니다." + str(menu)
+                "text" : dorm_or_day + "식단 입니다." + str(menu_answer(dorm_or_day))
             },
             "keyboard": {
                 "type" : "buttons",
