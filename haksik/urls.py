@@ -5,5 +5,5 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
 
     # installed apps
-    url(r'^haksik/', include('haksik.urls', namespace="haksik")),
+    url(r'^menu/', include('menu.urls', namespace="menu")),
 ]

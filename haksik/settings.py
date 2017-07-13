@@ -40,7 +40,7 @@ DEFAULT_APPS = [
 ]
 
 ADDED_APPS = [
-
+    'menu.apps.MenuConfig',
 ]
 
 INSTALLED_APPS = DEFAULT_APPS + ADDED_APPS
