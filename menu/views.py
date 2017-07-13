@@ -87,7 +87,7 @@ def answer(request):
             menu = Main.objects.get(id = 1)
         return JsonResponse({
             "message": {
-                "text" : dorm_or_day + "식단 입니다." + menu
+                "text" : dorm_or_day + "식단 입니다." + str(menu)
             },
             "keyboard": {
                 "type" : "buttons",
