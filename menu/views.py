@@ -12,6 +12,16 @@ from .models import Main
 dorm = ['청람재', '본관', '양진재', '양성재']
 day = ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일']
 
+day_dict = {
+    "월요일": 1,
+    "화요일": 2,
+    "수요일": 3,
+    "목요일": 4,
+    "금요일": 5,
+    "토요일": 6,
+    "일요일": 0,
+}
+
 global_dorm = ""
 
 # crawling
@@ -98,7 +108,9 @@ def answer(request):
 
     # 기숙사 종류 선택했을 때
     if dorm_or_day in dorm:
+        global global_dorm
         global_dorm = dorm_or_day
+
         return JsonResponse({
             "message": {
                 "text" : dorm_or_day
@@ -113,27 +125,18 @@ def answer(request):
     elif dorm_or_day in day:
         # if dorm_or_day == "월요일":
         #     menu = Main.objects.get(id = 1)
-        if global_dorm == "본관":
-            day_dict = {
-                "월요일": 1,
-                "화요일": 2,
-                "수요일": 3,
-                "목요일": 4,
-                "금요일": 5,
-                "토요일": 6,
-                "일요일": 0,
+        # if global_dorm == "본관":
+        #     menu = Main.objects.get(day_dict[dorm_or_day])
+        return JsonResponse({
+            "message": {
+                "text" : dorm_or_day + "식단 입니다.\n" + str(menu_answer(dorm_or_day))
+            },
+            "keyboard": {
+                "type" : "buttons",
+                # 'buttons': keyboard_choice(dorm_or_day)
+                'buttons': ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일', '기숙사 선택']
             }
-            menu = Main.objects.get(day_dict[dorm_or_day])
-            return JsonResponse({
-                "message": {
-                    "text" : dorm_or_day + "식단 입니다.\n" + menu
-                },
-                "keyboard": {
-                    "type" : "buttons",
-                    # 'buttons': keyboard_choice(dorm_or_day)
-                    'buttons': ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일', '기숙사 선택']
-                }
-            })
+        })
     # 기숙사 선택을 눌렀을 때
     else:
         return JsonResponse({
