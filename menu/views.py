@@ -6,42 +6,59 @@ from django.views.decorators.csrf import csrf_exempt
 import requests
 from bs4 import BeautifulSoup
 
-from .models import Main
+from .models import Main, Yangsung, Yangjin
 
 
 dorm = ['청람재', '본관', '양진재', '양성재']
 day = ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일']
-
-day_dict = {
-    "월요일": 1,
-    "화요일": 2,
-    "수요일": 3,
-    "목요일": 4,
-    "금요일": 5,
-    "토요일": 6,
-    "일요일": 0,
-}
 
 global_dorm = ""
 
 # crawling
 def crawling(request):
     Main.objects.all().delete()
+    Yangsung.objects.all().delete()
+    Yangjin.objects.all().delete()
+
     main_url = 'https://dorm.chungbuk.ac.kr/sub05/5_2.php?type1=5&type2=2'
+    sung_url = 'https://dorm.chungbuk.ac.kr/sub05/5_2_tab2.php?type1=5&type2=2'
+    jin_url = 'https://dorm.chungbuk.ac.kr/sub05/5_2_tab3.php?type1=5&type2=2'
+
     main_response = requests.get(main_url, verify=False)
+    sung_response = requests.get(sung_url, verify=False)
+    jin_response = requests.get(jin_url, verify=False)
+
     main_html = BeautifulSoup(main_response.content, 'lxml', from_encoding="utf-8")
+    sung_html = BeautifulSoup(sung_response.content, 'lxml', from_encoding="utf-8")
+    jin_html = BeautifulSoup(jin_response.content, 'lxml', from_encoding="utf-8")
 
     main_menus = main_html.select('tr[id]')
+    sung_menus = sung_html.select('tr')[1:8]
+    jin_menus = jin_html.select('tr')[1:8]
 
     for day in range(7):
-        test = "{}\n\n[아침]\n{}\n\n[점심]\n{}\n\n[저녁]\n{}".format(main_menus[day].find_all('td')[0].get_text().strip(),
+        main_menu = "{}\n\n[아침]\n{}\n\n[점심]\n{}\n\n[저녁]\n{}".format(main_menus[day].find_all('td')[0].get_text().strip(),
             main_menus[day].find_all('td')[1].get_text("\n").strip(),
             main_menus[day].find_all('td')[2].get_text("\n").strip(),
             main_menus[day].find_all('td')[3].get_text("\n").strip())
-        day = Main(number = day, day = test)
-        day.save()
 
-        print(test)
+        sung_menu = "{}\n\n[아침]\n{}\n\n[점심]\n{}\n\n[저녁]\n{}".format(sung_menus[day].find_all('td')[0].get_text().strip(),
+            sung_menus[day].find_all('td')[1].get_text("\n").strip(),
+            sung_menus[day].find_all('td')[2].get_text("\n").strip(),
+            sung_menus[day].find_all('td')[3].get_text("\n").strip())
+
+        jin_menu = "{}\n\n[아침]\n{}\n\n[점심]\n{}\n\n[저녁]\n{}".format(jin_menus[day].find_all('td')[0].get_text().strip(),
+            jin_menus[day].find_all('td')[1].get_text("\n").strip(),
+            jin_menus[day].find_all('td')[2].get_text("\n").strip(),
+            jin_menus[day].find_all('td')[3].get_text("\n").strip())
+
+        main = Main(number = day, day = main_menu)
+        sung = Yangsung(number = day, day = sung_menu)
+        jin = Yangjin(number = day, day = jin_menu)
+
+        main.save()
+        sung.save()
+        jin.save()
 
     return HttpResponse()
 
@@ -73,27 +90,27 @@ def keyboard_choice(mode):
 
 
 def menu_answer(day):
+    day_dict = {
+        "월요일": 1,
+        "화요일": 2,
+        "수요일": 3,
+        "목요일": 4,
+        "금요일": 5,
+        "토요일": 6,
+        "일요일": 0,
+    }
     if global_dorm == "청람재":
-        pass
+
+        return str(day_menu)
     elif global_dorm == "본관":
-        if day == "월요일":
-            return Main.objects.get(id = 1)
-        elif day == "화요일":
-            return Main.objects.get(id = 2)
-        elif day == "수요일":
-            return Main.objects.get(id = 3)
-        elif day == "목요일":
-            return Main.objects.get(id = 4)
-        elif day == "금요일":
-            return Main.objects.get(id = 5)
-        elif day == "토요일":
-            return Main.objects.get(id = 6)
-        elif day == "일요일":
-            return Main.objects.get(id = 0)
+        day_menu = Main.objects.get(id == day_dict[day])
+        return str(day_menu)
     elif global_dorm == "양진재":
-        pass
+        day_menu = Yangjin.objects.get(id == day_dict[day])
+        return str(day_menu)
     elif global_dorm == "양성재":
-        pass
+        day_menu = Yangsung.objects.get(id == day_dict[day])
+        return str(day_menu)
 
 
 
@@ -129,7 +146,7 @@ def answer(request):
         #     menu = Main.objects.get(day_dict[dorm_or_day])
         return JsonResponse({
             "message": {
-                "text" : dorm_or_day + "식단 입니다.\n" + str(menu_answer(dorm_or_day))
+                "text" : dorm_or_day + "식단 입니다.\n" + menu_answer(dorm_or_day)
             },
             "keyboard": {
                 "type" : "buttons",
