@@ -103,13 +103,13 @@ def menu_answer(day):
 
         return str(day_menu)
     elif global_dorm == "본관":
-        day_menu = Main.objects.get(id == day_dict[day])
+        day_menu = Main.objects.get(number = day_dict[day])
         return str(day_menu)
     elif global_dorm == "양진재":
-        day_menu = Yangjin.objects.get(id == day_dict[day])
+        day_menu = Yangjin.objects.get(number = day_dict[day])
         return str(day_menu)
     elif global_dorm == "양성재":
-        day_menu = Yangsung.objects.get(id == day_dict[day])
+        day_menu = Yangsung.objects.get(number = day_dict[day])
         return str(day_menu)
 
 
