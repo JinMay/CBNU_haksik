@@ -22,3 +22,11 @@ class Yangjin(models.Model):
 
     def __str__(self):
         return self.day
+
+
+class Crj(models.Model):
+    number = models.IntegerField()
+    day = models.TextField()
+
+    def __str__(self):
+        return self.day

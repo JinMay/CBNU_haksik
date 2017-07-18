@@ -6,15 +6,15 @@ from django.views.decorators.csrf import csrf_exempt
 import requests
 from bs4 import BeautifulSoup
 
-from .models import Main, Yangsung, Yangjin
+from .models import Main, Yangsung, Yangjin, Crj
 
 
 dorm = ['청람재', '본관', '양진재', '양성재']
 day = ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일']
 
-global_dorm = ""
+global_dorm = "" # 어떠한 기숙사를 선택했는지
 
-# crawling
+# 본관 / 양성재 / 양진재 크롤링
 def crawling(request):
     Main.objects.all().delete()
     Yangsung.objects.all().delete()
@@ -63,6 +63,25 @@ def crawling(request):
     return HttpResponse()
 
 
+def crj_crawling(request):
+    Crj.objects.all().delete()
+    crj_url = 'http://www.cbhscrj.kr/food/list.do?menuKey=39'
+    crj_response = requests.get(crj_url)
+    crj_html = BeautifulSoup(crj_response.content, 'lxml')
+    crj_menus = crj_html.select('div.food_week_box ')
+
+    for day in range(7):
+        crj_menu = crj = "{}\n\n[아침]\n{}\n\n[점심]\n{}\n\n[저녁]\n{}".format(crj_menus[day].find_all('p')[0].get_text().strip(),
+            crj_menus[day].find_all('p')[1].get_text().replace(',', "\n").strip(),
+            crj_menus[day].find_all('p')[2].get_text().replace(',', "\n").strip(),
+            crj_menus[day].find_all('p')[3].get_text().replace(',', "\n").strip())
+
+        crj = Crj(number = day, day = crj_menu)
+        crj.save()
+
+    return HttpResponse()
+
+
 def keyboard(request):
     keyboard = {
         "type" : "buttons",
@@ -100,7 +119,17 @@ def menu_answer(day):
         "일요일": 0,
     }
     if global_dorm == "청람재":
+        day_dict = {
+            "월요일": 0,
+            "화요일": 1,
+            "수요일": 2,
+            "목요일": 3,
+            "금요일": 4,
+            "토요일": 5,
+            "일요일": 6,
+        }
 
+        day_menu = Crj.objects.get(number = day_dict[day])
         return str(day_menu)
     elif global_dorm == "본관":
         day_menu = Main.objects.get(number = day_dict[day])
