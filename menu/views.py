@@ -39,19 +39,40 @@ def crj_crawling(request):
 # 본관
 def main_crawling(request):
     Main.objects.all().delete()
-    main_url = 'https://dorm.chungbuk.ac.kr/sub05/5_2.php?type1=5&type2=2'
-    main_response = requests.get(main_url, verify=False)
-    main_html = BeautifulSoup(main_response.content, 'lxml', from_encoding="utf-8")
-    main_menus = main_html.select('tr[id]')
+    # main_url = 'https://dorm.chungbuk.ac.kr/sub05/5_2.php?type1=5&type2=2'
+    # main_response = requests.get(main_url, verify=False)
+    # main_html = BeautifulSoup(main_response.content, 'lxml', from_encoding="utf-8")
+    # main_menus = main_html.select('tr[id]')
+    #
+    # for day in range(7):
+    #     main_menu = "{}\n\n[아침]\n{}\n\n[점심]\n{}\n\n[저녁]\n{}".format(main_menus[day].find_all('td')[0].get_text().strip(),
+    #         main_menus[day].find_all('td')[1].get_text("\n").strip(),
+    #         main_menus[day].find_all('td')[2].get_text("\n").strip(),
+    #         main_menus[day].find_all('td')[3].get_text("\n").strip())
+    #
+    #     main = Main(number = day, day = main_menu)
+    #     main.save()
 
-    for day in range(7):
-        main_menu = "{}\n\n[아침]\n{}\n\n[점심]\n{}\n\n[저녁]\n{}".format(main_menus[day].find_all('td')[0].get_text().strip(),
-            main_menus[day].find_all('td')[1].get_text("\n").strip(),
-            main_menus[day].find_all('td')[2].get_text("\n").strip(),
-            main_menus[day].find_all('td')[3].get_text("\n").strip())
+    ## 개강 첫 주 임시코드 시작
+    url = 'https://dorm.chungbuk.ac.kr/main/main.php'
+    response = requests.get(url, verify=False)
+    # print(response.text)
+    html = BeautifulSoup(response.content,'lxml')
+    # print(html.prettify())
 
-        main = Main(number = day, day = main_menu)
-        main.save()
+    breakfast = html.select('li#tab1c1 > ul.ul > li .foodmenu1 > ul')
+    lunch = html.select('li#tab1c1 > ul.ul > li .foodmenu2 > ul')
+    dinner = html.select('li#tab1c1 > ul.ul > li .foodmenu3 > ul')
+
+    temp_string = "오늘의 본관 메뉴입니다.\n\n[아침]\n{}\n\n[점심]\n{}\n\n[저녁]\n{}\n\n죄송합니다.\n현재 본관은 당일의 식단알림 기능만 제공하고있습니다".format(
+        breakfast[0].get_text("\n").strip(),
+        lunch[0].get_text("\n").strip(),
+        dinner[0].get_text("\n").strip(),
+    )
+
+    for num in range(7):
+        Main.objects.create(day = temp_string, number=num)
+    ## 개강 첫 주 임시코드 끝
 
     return HttpResponse()
 
