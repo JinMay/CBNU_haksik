@@ -7,6 +7,8 @@ urlpatterns = [
     url(r'^message$', views.answer, name="answer"),
 
     # crawling
-    url(r'^crawling$', views.crawling, name="crawling"),
     url(r'^crj.crawling$', views.crj_crawling, name="crj_crawling"),
+    url(r'^main.crawling$', views.main_crawling, name="main_crawling"),
+    url(r'^jin.crawling$', views.jin_crawling, name="jin_crawling"),
+    url(r'^sung.crawling$', views.sung_crawling, name="sung_crawling"),
 ]
