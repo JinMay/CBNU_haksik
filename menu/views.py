@@ -62,12 +62,14 @@ def crawling(request):
 
     return HttpResponse()
 
-
+# 청람재 크롤링은 따로 구현
 def crj_crawling(request):
     Crj.objects.all().delete()
+
     crj_url = 'http://www.cbhscrj.kr/food/list.do?menuKey=39'
     crj_response = requests.get(crj_url)
     crj_html = BeautifulSoup(crj_response.content, 'lxml')
+
     crj_menus = crj_html.select('div.food_week_box ')
 
     for day in range(7):
@@ -194,3 +196,4 @@ def answer(request):
                 'buttons': ['청람재', '본관', '양진재', '양성재']
             }
         })
+        
