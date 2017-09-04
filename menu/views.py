@@ -209,6 +209,23 @@ def answer(request):
         #     menu = Main.objects.get(id = 1)
         # if global_dorm == "본관":
         #     menu = Main.objects.get(day_dict[dorm_or_day])
+
+        ## 임시코드
+        if global_dorm == '본관':
+            return JsonResponse({
+                "message": {
+                    "text" : menu_answer(dorm_or_day)
+                },
+                "keyboard": {
+                    "type" : "buttons",
+                    # 'buttons': keyboard_choice(dorm_or_day)
+                    'buttons': ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일', '기숙사 선택']
+                }
+            })
+        ## 임시코드 끝
+
+
+
         return JsonResponse({
             "message": {
                 "text" : dorm_or_day + "식단 입니다.\n" + menu_answer(dorm_or_day)
