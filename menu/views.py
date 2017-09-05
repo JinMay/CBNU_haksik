@@ -247,3 +247,13 @@ def answer(request):
                 'buttons': ['청람재', '본관', '양진재', '양성재']
             }
         })
+
+
+# 친구추가 / 차단
+# POST / DELETE
+def friends(request):
+    return HttpResponse(status=200)
+
+# 채팅방 나가기
+def leave_chatroom(request):
+    return HttpResponse(status=200)

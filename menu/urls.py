@@ -4,7 +4,9 @@ from . import views
 
 urlpatterns = [
     url(r'^keyboard/$', views.keyboard, name="keyboard"),
-    url(r'^message$', views.answer, name="answer"),
+    url(r'^message/$', views.answer, name="answer"),
+    url(r'^friend/$', views.friends, name="friends"),
+    url(r'^leave/$', views.leave_chatroom, name="chatroom"),
 
     # crawling
     url(r'^crj.crawling$', views.crj_crawling, name="crj_crawling"),
