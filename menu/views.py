@@ -10,33 +10,14 @@ from bs4 import BeautifulSoup
 from .models import Main, Yangsung, Yangjin, Crj
 
 
-dorm = ['청람재', '본관', '양진재', '양성재']
+dorm = ['중문기숙사', '양진재', '양성재', '청람재']
 day = ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일']
 
 global_dorm = "" # 어떠한 기숙사를 선택했는지
 
 
-# 청람재
-def crj_crawling(request):
-    Crj.objects.all().delete()
-    crj_url = 'http://www.cbhscrj.kr/food/list.do?menuKey=39'
-    crj_response = requests.get(crj_url)
-    crj_html = BeautifulSoup(crj_response.content, 'lxml')
-    crj_menus = crj_html.select('div.food_week_box')
 
-    for day in range(7):
-        crj_menu = crj = "{}\n\n[아침]\n{}\n\n[점심]\n{}\n\n[저녁]\n{}".format(crj_menus[day].find_all('p')[0].get_text().strip(),
-            crj_menus[day].find_all('p')[1].get_text().replace(',', "\n").strip(),
-            crj_menus[day].find_all('p')[2].get_text().replace(',', "\n").strip(),
-            crj_menus[day].find_all('p')[3].get_text().replace(',', "\n").strip())
-
-        crj = Crj(number = day, day = crj_menu)
-        crj.save()
-
-    return HttpResponse()
-
-
-# 본관
+# 중문기숙사
 def main_crawling(request):
     Main.objects.all().delete()
     # main_url = 'https://dorm.chungbuk.ac.kr/sub05/5_2.php?type1=5&type2=2'
@@ -117,6 +98,27 @@ def sung_crawling(request):
     return HttpResponse()
 
 
+# 청람재
+def crj_crawling(request):
+    Crj.objects.all().delete()
+    crj_url = 'http://www.cbhscrj.kr/food/list.do?menuKey=39'
+    crj_response = requests.get(crj_url)
+    crj_html = BeautifulSoup(crj_response.content, 'lxml')
+    crj_menus = crj_html.select('div.food_week_box')
+
+    for day in range(7):
+        crj_menu = crj = "{}\n\n[아침]\n{}\n\n[점심]\n{}\n\n[저녁]\n{}".format(crj_menus[day].find_all('p')[0].get_text().strip(),
+            crj_menus[day].find_all('p')[1].get_text().replace(',', "\n").strip(),
+            crj_menus[day].find_all('p')[2].get_text().replace(',', "\n").strip(),
+            crj_menus[day].find_all('p')[3].get_text().replace(',', "\n").strip())
+
+        crj = Crj(number = day, day = crj_menu)
+        crj.save()
+
+    return HttpResponse()
+
+
+
 def keyboard(request):
     keyboard = {
         "type" : "buttons",
@@ -126,22 +128,22 @@ def keyboard(request):
     return JsonResponse(keyboard)
 
 
-# data serializing 문제 때문에 미사용
-def keyboard_choice(mode):
-    dorm_keyboard = {
-        "type" : "buttons",
-        'buttons': ['청람재', '본관', '양진재', '양성재']
-    }
-
-    day_keyboard = {
-        "type" : "buttons",
-        'buttons': ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일', '기숙사 선택']
-    }
-
-    if mode in dorm:
-        return JsonResponse(day_keyboard)
-    elif mode == "기숙사 선택":
-        return JsonResponse(dorm_keyboard)
+# # data serializing 문제 때문에 미사용
+# def keyboard_choice(mode):
+#     dorm_keyboard = {
+#         "type" : "buttons",
+#         'buttons': ['청람재', '본관', '양진재', '양성재']
+#     }
+#
+#     day_keyboard = {
+#         "type" : "buttons",
+#         'buttons': ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일', '기숙사 선택']
+#     }
+#
+#     if mode in dorm:
+#         return JsonResponse(day_keyboard)
+#     elif mode == "기숙사 선택":
+#         return JsonResponse(dorm_keyboard)
 
 
 def menu_answer(day):
@@ -244,7 +246,7 @@ def answer(request):
             },
             "keyboard": {
                 "type" : "buttons",
-                'buttons': ['청람재', '본관', '양진재', '양성재']
+                'buttons': ['본관', '양진재', '양성재', '청람재']
             }
         })
 
