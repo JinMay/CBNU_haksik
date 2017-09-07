@@ -45,7 +45,7 @@ def main_crawling(request):
     lunch = html.select('li#tab1c1 > ul.ul > li .foodmenu2 > ul')
     dinner = html.select('li#tab1c1 > ul.ul > li .foodmenu3 > ul')
 
-    temp_string = "오늘의 본관 메뉴입니다.\n\n[아침]\n{}\n\n[점심]\n{}\n\n[저녁]\n{}\n\n죄송합니다.\n현재 본관은 당일의 식단알림 기능만 제공하고있습니다".format(
+    temp_string = "오늘의 본관 메뉴입니다.\n\n[아침]\n{}\n\n[점심]\n{}\n\n[저녁]\n{}\n\n죄송합니다.\n현재 중문기숙사는 당일식단알림 기능만 제공하고있습니다".format(
         breakfast[0].get_text("\n").strip(),
         lunch[0].get_text("\n").strip(),
         dinner[0].get_text("\n").strip(),
@@ -122,7 +122,7 @@ def crj_crawling(request):
 def keyboard(request):
     keyboard = {
         "type" : "buttons",
-        'buttons': ['청람재', '본관', '양진재', '양성재']
+        'buttons': ['중문기숙사', '양진재', '양성재', '청람재']
     }
 
     return JsonResponse(keyboard)
@@ -169,7 +169,7 @@ def menu_answer(day):
 
         day_menu = Crj.objects.get(number = day_dict[day])
         return str(day_menu)
-    elif global_dorm == "본관":
+    elif global_dorm == "중문기숙사":
         day_menu = Main.objects.get(number = day_dict[day])
         return str(day_menu)
     elif global_dorm == "양진재":
@@ -213,7 +213,7 @@ def answer(request):
         #     menu = Main.objects.get(day_dict[dorm_or_day])
 
         ## 임시코드
-        if global_dorm == '본관':
+        if global_dorm == '중문기숙사':
             return JsonResponse({
                 "message": {
                     "text" : menu_answer(dorm_or_day)
@@ -246,7 +246,7 @@ def answer(request):
             },
             "keyboard": {
                 "type" : "buttons",
-                'buttons': ['본관', '양진재', '양성재', '청람재']
+                'buttons': ['중문기숙사', '양진재', '양성재', '청람재']
             }
         })
 
