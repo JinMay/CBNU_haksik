@@ -23,14 +23,14 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'sbe$v3(^f!b9y@3re(o=&z7*wp&w0$1b9+5qsj8vmu18(s#zlx'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
 
-INSTALLED_APPS = [
+DEFAULT_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -38,6 +38,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 ]
+
+ADDED_APPS = [
+    'menu.apps.MenuConfig',
+]
+
+INSTALLED_APPS = DEFAULT_APPS + ADDED_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
