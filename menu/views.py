@@ -1,8 +1,10 @@
 import json
+import datetime
 
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.utils import timezone
 
 import requests
 from bs4 import BeautifulSoup
@@ -45,7 +47,7 @@ def main_crawling(request):
     lunch = html.select('li#tab1c1 > ul.ul > li .foodmenu2 > ul')
     dinner = html.select('li#tab1c1 > ul.ul > li .foodmenu3 > ul')
 
-    temp_string = "오늘의 본관 메뉴입니다.\n\n[아침]\n{}\n\n[점심]\n{}\n\n[저녁]\n{}\n\n죄송합니다.\n현재 중문기숙사는 당일식단알림 기능만 제공하고있습니다".format(
+    temp_string = "오늘의 중문기숙사 메뉴입니다.\n\n[아침]\n{}\n\n[점심]\n{}\n\n[저녁]\n{}\n\n죄송합니다.\n현재 중문기숙사는 당일식단알림 기능만 제공하고있습니다".format(
         breakfast[0].get_text("\n").strip(),
         lunch[0].get_text("\n").strip(),
         dinner[0].get_text("\n").strip(),
@@ -180,6 +182,16 @@ def menu_answer(day):
         return str(day_menu)
 
 
+# 오늘이 몇 일 무슨 요일인지 문자열로 리턴
+def today_date():
+    year = timezone.localdate().year
+    month = timezone.localdate().month
+    day = timezone.localdate().day
+    date = timezone.localdate().weekday()
+    date_list = ['월', '화', '수', '목', '금', '토', '일']
+
+    return "오늘은 {}년 {}월 {}일\n{}요일 입니다.".format(year, month, day, date_list[date])
+
 
 @csrf_exempt
 def answer(request):
@@ -197,7 +209,7 @@ def answer(request):
 
         return JsonResponse({
             "message": {
-                "text" : dorm_or_day
+                "text" : dorm_or_day + '\n\n' + today_date()
             },
             "keyboard": {
                 "type" : "buttons",
