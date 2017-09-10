@@ -37,3 +37,10 @@ class Galaxy(models.Model):
 
     def __str__(self):
         return self.day
+
+
+class Star(models.Model):
+    day = models.TextField()
+
+    def __str__(self):
+        return self.day

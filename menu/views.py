@@ -10,12 +10,12 @@ import requests
 from bs4 import BeautifulSoup
 
 from .models import Main, Yangsung, Yangjin, Crj
-from .models import Galaxy
+from .models import Galaxy, Star
 
 
 dorm = ['중문기숙사', '양진재', '양성재', '청람재']
 day = ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일']
-uni_menu = ['은하수식당']
+uni_menu = ['은하수식당', '별빛레스토랑']
 
 global_dorm = "" # 어떠한 기숙사를 선택했는지
 
@@ -103,16 +103,22 @@ def crj_crawling(request):
     return HttpResponse()
 
 
-# 은하수식당
+# 은하수식당(사범대 옆)
 def get_galaxy():
     menu = Galaxy.objects.first()
+    return str(menu)
+
+
+# 별빛레스토랑(신학 2층)
+def get_star():
+    menu = Star.objects.first()
     return str(menu)
 
 
 def keyboard(request):
     keyboard = {
         "type" : "buttons",
-        'buttons': ['중문기숙사', '양진재', '양성재', '청람재', '은하수식당']
+        'buttons': ['중문기숙사', '양진재', '양성재', '청람재', '은하수식당', '별빛레스토랑']
     }
 
     return JsonResponse(keyboard)
@@ -229,11 +235,22 @@ def answer(request):
     elif dorm_or_day == "은하수식당":
         return JsonResponse({
             "message": {
-                "text" : dorm_or_day + '\n\n' + get_galaxy()
+                "text" : get_galaxy()
             },
             "keyboard": {
                 "type" : "buttons",
-                'buttons': ['은하수식당', '기숙사 선택']
+                'buttons': ['은하수식당', '별빛레스토랑', '기숙사 선택']
+            }
+        })
+
+    elif dorm_or_day == "별빛레스토랑":
+        return JsonResponse({
+            "message": {
+                "text" : get_star()
+            },
+            "keyboard": {
+                "type" : "buttons",
+                'buttons': ['은하수식당', '별빛레스토랑', '기숙사 선택']
             }
         })
 
@@ -246,7 +263,7 @@ def answer(request):
             },
             "keyboard": {
                 "type" : "buttons",
-                'buttons': ['중문기숙사', '양진재', '양성재', '청람재', '은하수식당']
+                'buttons': ['중문기숙사', '양진재', '양성재', '청람재', '은하수식당', '별빛레스토랑']
             }
         })
 
