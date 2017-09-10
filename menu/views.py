@@ -10,10 +10,12 @@ import requests
 from bs4 import BeautifulSoup
 
 from .models import Main, Yangsung, Yangjin, Crj
+from .models import Galaxy
 
 
 dorm = ['중문기숙사', '양진재', '양성재', '청람재']
 day = ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일']
+uni_menu = ['은하수식당']
 
 global_dorm = "" # 어떠한 기숙사를 선택했는지
 
@@ -101,11 +103,16 @@ def crj_crawling(request):
     return HttpResponse()
 
 
+# 은하수식당
+def get_galaxy():
+    menu = Galaxy.objects.first()
+    return str(menu)
+
 
 def keyboard(request):
     keyboard = {
         "type" : "buttons",
-        'buttons': ['중문기숙사', '양진재', '양성재', '청람재']
+        'buttons': ['중문기숙사', '양진재', '양성재', '청람재', '은하수식당']
     }
 
     return JsonResponse(keyboard)
@@ -171,7 +178,9 @@ def today_date():
     date = timezone.localdate().weekday()
     date_list = ['월', '화', '수', '목', '금', '토', '일']
 
-    return "오늘은 {}년 {}월 {}일\n{}요일 입니다.".format(year, month, day, date_list[date])
+    today_str = "오늘은 {}년 {}월 {}일\n{}요일 입니다.".format(year, month, day, date_list[date])
+
+    return today_str
 
 
 @csrf_exempt
@@ -215,6 +224,20 @@ def answer(request):
                 'buttons': ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일', '기숙사 선택']
             }
         })
+
+    # 은하수식당을 선택했을 때
+    elif dorm_or_day == "은하수식당":
+        return JsonResponse({
+            "message": {
+                "text" : dorm_or_day + '\n\n' + get_galaxy()
+            },
+            "keyboard": {
+                "type" : "buttons",
+                'buttons': ['은하수식당', '기숙사 선택']
+            }
+        })
+
+
     # 기숙사 선택을 눌렀을 때
     else:
         return JsonResponse({
@@ -223,7 +246,7 @@ def answer(request):
             },
             "keyboard": {
                 "type" : "buttons",
-                'buttons': ['중문기숙사', '양진재', '양성재', '청람재']
+                'buttons': ['중문기숙사', '양진재', '양성재', '청람재', '은하수식당']
             }
         })
 
