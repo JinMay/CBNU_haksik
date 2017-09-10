@@ -30,3 +30,17 @@ class Crj(models.Model):
 
     def __str__(self):
         return self.day
+
+
+class Galaxy(models.Model):
+    day = models.TextField()
+
+    def __str__(self):
+        return self.day
+
+
+class Star(models.Model):
+    day = models.TextField()
+
+    def __str__(self):
+        return self.day

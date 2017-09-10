@@ -1,17 +1,21 @@
 import json
+import datetime
 
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.utils import timezone
 
 import requests
 from bs4 import BeautifulSoup
 
 from .models import Main, Yangsung, Yangjin, Crj
+from .models import Galaxy, Star
 
 
 dorm = ['중문기숙사', '양진재', '양성재', '청람재']
 day = ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일']
+uni_menu = ['은하수식당', '별빛레스토랑']
 
 global_dorm = "" # 어떠한 기숙사를 선택했는지
 
@@ -20,40 +24,21 @@ global_dorm = "" # 어떠한 기숙사를 선택했는지
 # 중문기숙사
 def main_crawling(request):
     Main.objects.all().delete()
-    # main_url = 'https://dorm.chungbuk.ac.kr/sub05/5_2.php?type1=5&type2=2'
-    # main_response = requests.get(main_url, verify=False)
-    # main_html = BeautifulSoup(main_response.content, 'lxml', from_encoding="utf-8")
-    # main_menus = main_html.select('tr[id]')
-    #
-    # for day in range(7):
-    #     main_menu = "{}\n\n[아침]\n{}\n\n[점심]\n{}\n\n[저녁]\n{}".format(main_menus[day].find_all('td')[0].get_text().strip(),
-    #         main_menus[day].find_all('td')[1].get_text("\n").strip(),
-    #         main_menus[day].find_all('td')[2].get_text("\n").strip(),
-    #         main_menus[day].find_all('td')[3].get_text("\n").strip())
-    #
-    #     main = Main(number = day, day = main_menu)
-    #     main.save()
+    main_url = 'https://dorm.chungbuk.ac.kr/sub05/5_2.php?type1=5&type2=2'
+    main_response = requests.get(main_url, verify=False)
+    main_html = BeautifulSoup(main_response.content, 'lxml', from_encoding="utf-8")
+    main_menus = main_html.select('tr[id]')
 
-    ## 개강 첫 주 임시코드 시작
-    url = 'https://dorm.chungbuk.ac.kr/main/main.php'
-    response = requests.get(url, verify=False)
-    # print(response.text)
-    html = BeautifulSoup(response.content,'lxml')
-    # print(html.prettify())
+    for day in range(7):
+        main_menu = "{}\n\n[아침]\n{}\n\n[점심]\n{}\n\n[저녁]\n{}".format(main_menus[day].find_all('td')[0].get_text().strip(),
+            main_menus[day].find_all('td')[1].get_text("\n").strip(),
+            main_menus[day].find_all('td')[2].get_text("\n").strip(),
+            main_menus[day].find_all('td')[3].get_text("\n").strip())
 
-    breakfast = html.select('li#tab1c1 > ul.ul > li .foodmenu1 > ul')
-    lunch = html.select('li#tab1c1 > ul.ul > li .foodmenu2 > ul')
-    dinner = html.select('li#tab1c1 > ul.ul > li .foodmenu3 > ul')
+        main = Main(number = day, day = main_menu)
+        main.save()
 
-    temp_string = "오늘의 본관 메뉴입니다.\n\n[아침]\n{}\n\n[점심]\n{}\n\n[저녁]\n{}\n\n죄송합니다.\n현재 중문기숙사는 당일식단알림 기능만 제공하고있습니다".format(
-        breakfast[0].get_text("\n").strip(),
-        lunch[0].get_text("\n").strip(),
-        dinner[0].get_text("\n").strip(),
-    )
 
-    for num in range(7):
-        Main.objects.create(day = temp_string, number=num)
-    ## 개강 첫 주 임시코드 끝
 
     return HttpResponse()
 
@@ -118,11 +103,22 @@ def crj_crawling(request):
     return HttpResponse()
 
 
+# 은하수식당(사범대 옆)
+def get_galaxy():
+    menu = Galaxy.objects.first()
+    return str(menu)
+
+
+# 별빛레스토랑(신학 2층)
+def get_star():
+    menu = Star.objects.first()
+    return str(menu)
+
 
 def keyboard(request):
     keyboard = {
         "type" : "buttons",
-        'buttons': ['중문기숙사', '양진재', '양성재', '청람재']
+        'buttons': ['중문기숙사', '양진재', '양성재', '청람재', '은하수식당', '별빛레스토랑']
     }
 
     return JsonResponse(keyboard)
@@ -180,6 +176,18 @@ def menu_answer(day):
         return str(day_menu)
 
 
+# 오늘이 몇 일 무슨 요일인지 문자열로 리턴
+def today_date():
+    year = timezone.localdate().year
+    month = timezone.localdate().month
+    day = timezone.localdate().day
+    date = timezone.localdate().weekday()
+    date_list = ['월', '화', '수', '목', '금', '토', '일']
+
+    today_str = "오늘은 {}년 {}월 {}일\n{}요일 입니다.".format(year, month, day, date_list[date])
+
+    return today_str
+
 
 @csrf_exempt
 def answer(request):
@@ -197,7 +205,7 @@ def answer(request):
 
         return JsonResponse({
             "message": {
-                "text" : dorm_or_day
+                "text" : dorm_or_day + '\n\n' + today_date()
             },
             "keyboard": {
                 "type" : "buttons",
@@ -212,22 +220,6 @@ def answer(request):
         # if global_dorm == "본관":
         #     menu = Main.objects.get(day_dict[dorm_or_day])
 
-        ## 임시코드
-        if global_dorm == '중문기숙사':
-            return JsonResponse({
-                "message": {
-                    "text" : menu_answer(dorm_or_day)
-                },
-                "keyboard": {
-                    "type" : "buttons",
-                    # 'buttons': keyboard_choice(dorm_or_day)
-                    'buttons': ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일', '기숙사 선택']
-                }
-            })
-        ## 임시코드 끝
-
-
-
         return JsonResponse({
             "message": {
                 "text" : dorm_or_day + "식단 입니다.\n" + menu_answer(dorm_or_day)
@@ -238,6 +230,31 @@ def answer(request):
                 'buttons': ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일', '기숙사 선택']
             }
         })
+
+    # 은하수식당을 선택했을 때
+    elif dorm_or_day == "은하수식당":
+        return JsonResponse({
+            "message": {
+                "text" : get_galaxy()
+            },
+            "keyboard": {
+                "type" : "buttons",
+                'buttons': ['은하수식당', '별빛레스토랑', '기숙사 선택']
+            }
+        })
+
+    elif dorm_or_day == "별빛레스토랑":
+        return JsonResponse({
+            "message": {
+                "text" : get_star()
+            },
+            "keyboard": {
+                "type" : "buttons",
+                'buttons': ['은하수식당', '별빛레스토랑', '기숙사 선택']
+            }
+        })
+
+
     # 기숙사 선택을 눌렀을 때
     else:
         return JsonResponse({
@@ -246,7 +263,7 @@ def answer(request):
             },
             "keyboard": {
                 "type" : "buttons",
-                'buttons': ['중문기숙사', '양진재', '양성재', '청람재']
+                'buttons': ['중문기숙사', '양진재', '양성재', '청람재', '은하수식당', '별빛레스토랑']
             }
         })
 
