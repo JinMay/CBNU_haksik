@@ -22,40 +22,21 @@ global_dorm = "" # 어떠한 기숙사를 선택했는지
 # 중문기숙사
 def main_crawling(request):
     Main.objects.all().delete()
-    # main_url = 'https://dorm.chungbuk.ac.kr/sub05/5_2.php?type1=5&type2=2'
-    # main_response = requests.get(main_url, verify=False)
-    # main_html = BeautifulSoup(main_response.content, 'lxml', from_encoding="utf-8")
-    # main_menus = main_html.select('tr[id]')
-    #
-    # for day in range(7):
-    #     main_menu = "{}\n\n[아침]\n{}\n\n[점심]\n{}\n\n[저녁]\n{}".format(main_menus[day].find_all('td')[0].get_text().strip(),
-    #         main_menus[day].find_all('td')[1].get_text("\n").strip(),
-    #         main_menus[day].find_all('td')[2].get_text("\n").strip(),
-    #         main_menus[day].find_all('td')[3].get_text("\n").strip())
-    #
-    #     main = Main(number = day, day = main_menu)
-    #     main.save()
+    main_url = 'https://dorm.chungbuk.ac.kr/sub05/5_2.php?type1=5&type2=2'
+    main_response = requests.get(main_url, verify=False)
+    main_html = BeautifulSoup(main_response.content, 'lxml', from_encoding="utf-8")
+    main_menus = main_html.select('tr[id]')
 
-    ## 개강 첫 주 임시코드 시작
-    url = 'https://dorm.chungbuk.ac.kr/main/main.php'
-    response = requests.get(url, verify=False)
-    # print(response.text)
-    html = BeautifulSoup(response.content,'lxml')
-    # print(html.prettify())
+    for day in range(7):
+        main_menu = "{}\n\n[아침]\n{}\n\n[점심]\n{}\n\n[저녁]\n{}".format(main_menus[day].find_all('td')[0].get_text().strip(),
+            main_menus[day].find_all('td')[1].get_text("\n").strip(),
+            main_menus[day].find_all('td')[2].get_text("\n").strip(),
+            main_menus[day].find_all('td')[3].get_text("\n").strip())
 
-    breakfast = html.select('li#tab1c1 > ul.ul > li .foodmenu1 > ul')
-    lunch = html.select('li#tab1c1 > ul.ul > li .foodmenu2 > ul')
-    dinner = html.select('li#tab1c1 > ul.ul > li .foodmenu3 > ul')
+        main = Main(number = day, day = main_menu)
+        main.save()
 
-    temp_string = "오늘의 중문기숙사 메뉴입니다.\n\n[아침]\n{}\n\n[점심]\n{}\n\n[저녁]\n{}\n\n죄송합니다.\n현재 중문기숙사는 당일식단알림 기능만 제공하고있습니다".format(
-        breakfast[0].get_text("\n").strip(),
-        lunch[0].get_text("\n").strip(),
-        dinner[0].get_text("\n").strip(),
-    )
 
-    for num in range(7):
-        Main.objects.create(day = temp_string, number=num)
-    ## 개강 첫 주 임시코드 끝
 
     return HttpResponse()
 
@@ -223,22 +204,6 @@ def answer(request):
         #     menu = Main.objects.get(id = 1)
         # if global_dorm == "본관":
         #     menu = Main.objects.get(day_dict[dorm_or_day])
-
-        ## 임시코드
-        if global_dorm == '중문기숙사':
-            return JsonResponse({
-                "message": {
-                    "text" : menu_answer(dorm_or_day)
-                },
-                "keyboard": {
-                    "type" : "buttons",
-                    # 'buttons': keyboard_choice(dorm_or_day)
-                    'buttons': ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일', '기숙사 선택']
-                }
-            })
-        ## 임시코드 끝
-
-
 
         return JsonResponse({
             "message": {
