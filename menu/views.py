@@ -292,7 +292,7 @@ def answer(request):
         })
 
     # 한빛레스토랑의 코너를 선택했을 때
-    elif global_hanbit == "한빛레스토랑":
+    elif dorm_or_day in uni_menu:
         return JsonResponse({
             "message": {
                 "text" : get_hanbit(dorm_or_day)
