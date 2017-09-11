@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from .models import Main, Yangjin, Yangsung, Crj
-from .models import Galaxy, Star
+from .models import Galaxy, Star, Hanbit
 
 @admin.register(Main)
 class MainAdmin(admin.ModelAdmin):
@@ -36,4 +36,10 @@ class GalaxyAdmin(admin.ModelAdmin):
 @admin.register(Star)
 class StarAdmin(admin.ModelAdmin):
     list_display = ['day']
+    list_display_links = ['day']
+
+
+@admin.register(Hanbit)
+class HanbitAdmin(admin.ModelAdmin):
+    list_display = ['number', 'day']
     list_display_links = ['day']

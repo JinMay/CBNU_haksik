@@ -10,14 +10,15 @@ import requests
 from bs4 import BeautifulSoup
 
 from .models import Main, Yangsung, Yangjin, Crj
-from .models import Galaxy, Star
+from .models import Galaxy, Star, Hanbit
 
 
 dorm = ['중문기숙사', '양진재', '양성재', '청람재']
 day = ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일']
-uni_menu = ['은하수식당', '별빛레스토랑']
+uni_menu = ['은하수식당', '별빛레스토랑', '한빛레스토랑']
 
 global_dorm = "" # 어떠한 기숙사를 선택했는지
+global_hanbit = ""
 
 
 
@@ -115,10 +116,29 @@ def get_star():
     return str(menu)
 
 
+# 한빛레스토랑(신학 1층)
+def get_hanbit(kind):
+    if kind == '주먹밥':
+        menu = Hanbit.objects.get(number=0)
+    elif kind == '백반':
+        menu = Hanbit.objects.get(number=1)
+    elif kind == '백반특식':
+        menu = Hanbit.objects.get(number=2)
+    elif kind == '덮밥코너':
+        menu = Hanbit.objects.get(number=3)
+    elif kind == '저녁':
+        menu = Hanbit.objects.get(number=4)
+    elif kind == '면코너':
+        menu = Hanbit.objects.get(number=5)
+    elif kind == '간식코너':
+        menu = Hanbit.objects.get(number=6)
+
+    return str(menu)
+
 def keyboard(request):
     keyboard = {
         "type" : "buttons",
-        'buttons': ['중문기숙사', '양진재', '양성재', '청람재', '은하수식당', '별빛레스토랑']
+        'buttons': ['중문기숙사', '양진재', '양성재', '청람재', '은하수식당', '별빛레스토랑', '한빛레스토랑']
     }
 
     return JsonResponse(keyboard)
@@ -142,6 +162,7 @@ def keyboard(request):
 #         return JsonResponse(dorm_keyboard)
 
 
+# 학교기숙사
 def menu_answer(day):
     day_dict = {
         "월요일": 1,
@@ -239,10 +260,11 @@ def answer(request):
             },
             "keyboard": {
                 "type" : "buttons",
-                'buttons': ['은하수식당', '별빛레스토랑', '기숙사 선택']
+                'buttons': ['은하수식당', '별빛레스토랑', '한빛레스토랑', '기숙사 선택']
             }
         })
 
+    # 별빛레스토랑을 선택했을 때
     elif dorm_or_day == "별빛레스토랑":
         return JsonResponse({
             "message": {
@@ -250,7 +272,34 @@ def answer(request):
             },
             "keyboard": {
                 "type" : "buttons",
-                'buttons': ['은하수식당', '별빛레스토랑', '기숙사 선택']
+                'buttons': ['은하수식당', '별빛레스토랑', '한빛레스토랑', '기숙사 선택']
+            }
+        })
+
+    # 한빛레스토랑을 선택했을 때
+    elif dorm_or_day == "한빛레스토랑":
+        global global_hanbit
+        global_hanbit = dorm_or_day
+
+        return JsonResponse({
+            "message": {
+                "text" : dorm_or_day
+            },
+            "keyboard": {
+                "type" : "buttons",
+                'buttons': ['주먹밥', '백반', '백반특식', '덮밥코너', '저녁', '면코너', '간식코너', '기숙사 선택']
+            }
+        })
+
+    # 한빛레스토랑의 코너를 선택했을 때
+    elif global_hanbit == "한빛레스토랑":
+        return JsonResponse({
+            "message": {
+                "text" : get_hanbit(dorm_or_day)
+            },
+            "keyboard": {
+                "type" : "buttons",
+                'buttons': ['주먹밥', '백반', '백반특식', '덮밥코너', '저녁', '면코너', '간식코너', '기숙사 선택']
             }
         })
 
@@ -263,7 +312,7 @@ def answer(request):
             },
             "keyboard": {
                 "type" : "buttons",
-                'buttons': ['중문기숙사', '양진재', '양성재', '청람재', '은하수식당', '별빛레스토랑']
+                'buttons': ['중문기숙사', '양진재', '양성재', '청람재', '은하수식당', '별빛레스토랑' ,'한빛레스토랑']
             }
         })
 
