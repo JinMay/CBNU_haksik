@@ -16,6 +16,7 @@ from .models import Galaxy, Star, Hanbit
 dorm = ['중문기숙사', '양진재', '양성재', '청람재']
 day = ['월요일', '화요일', '수요일', '목요일', '금요일', '토요일', '일요일']
 uni_menu = ['은하수식당', '별빛레스토랑', '한빛레스토랑']
+uni_menu_menus = ['주먹밥', '백반', '백반특식', '덮밥코너', '저녁', '면코너', '간식코너']
 
 global_dorm = "" # 어떠한 기숙사를 선택했는지
 global_hanbit = ""
@@ -292,7 +293,7 @@ def answer(request):
         })
 
     # 한빛레스토랑의 코너를 선택했을 때
-    elif dorm_or_day in uni_menu:
+    elif global_hanbit == "한빛레스토랑" and dorm_or_day in uni_menu_menus:
         return JsonResponse({
             "message": {
                 "text" : get_hanbit(dorm_or_day)
